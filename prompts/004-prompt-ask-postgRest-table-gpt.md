@@ -3,50 +3,40 @@ Com base no seu conhecimento do meu banco postgre no supabase, gere pra mim o de
 Crie as 4 operações abaixo:
 #### Criar prompt
 #### Atualizar prompt
-#### Deletar prompt
-#### Listar prompt
+#### Deletar Prompt
+#### Listar Prompt
+
 
 Quero no mesmo formato do padrão abaixo, e deixe no formato markdown a resposta
 
 EXEMPLO
-```
+``` 
 ```js
-POST: `https://{{PROJECT_ID}}.supabase.co/rest/v1/folders`
+POST: `{{SUPABASE_URL}}/rest/v1/folders`
 ```
 
-[PARAMS] Sem parâmetros
-
-[HEADER]
-
+[Headers]
 apikey: {{SUPABASE_ANON_KEY}}
 Authorization: Bearer {{USER_ACCESS_TOKEN}}
-Content-Type: application/json'
-Prefer: return=representation'
+Content-Type: application/json
+Prefer: return=representation
 
-[BODY]
-
-```js
+[Body]
+```json
 {
-  "user_id": "28b90e45-a1db-40d2-b3f1-ae09727bc2c3",
-  "name": "Desenvolvimento"
+  "user_id": "980e2765-1993-4018-8eb9-f777d606976a",
+  "name": "Marketing"
 }
 ```
 
-📦 [Expect]
-`201 Created`
+Você precisa enviar user_id, porque sua coluna é NOT NULL e não tem default.
+O RLS vai garantir que esse user_id é igual a auth.uid() (policy with check).
 
-🚨 [Throws]
-❌ `401 Unauthorized`
+[Resposta_Esperada]
+`201 Created` (ou 200 dependendo de config) + o JSON da pasta (se você usou Prefer: return=representation).
 
-Você não enviou o Authorization Bearer.
-
-❌ `403 Row Level Security`
-
-O user_id do body é diferente do usuário do token.
-
-❌ `409 Conflict`
-
-Já existe pasta com mesmo nome (case-insensitive) por causa do índice:
-
-unique (user_id, lower(name))
-```
+[Erros_comuns]
+`401 Unauthorized`: faltou/está inválido o Authorization: Bearer <token>.
+`403 Forbidden:` RLS bloqueou (ex.: token de outro usuário, ou user_id não bate com o auth.uid()).
+`409 Conflict:` você já tem pasta com o mesmo nome case-insensitive (por causa do unique index (user_id, lower(name))).
+``` 
